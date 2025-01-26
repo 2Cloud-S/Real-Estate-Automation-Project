@@ -19,7 +19,7 @@ export function RequestAccess() {
     setStatus('loading');
 
     try {
-      const response = await fetch(import.meta.env.VITE_API_URL + '/api/request-access', {
+      const response = await fetch('/api/request-access', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -27,12 +27,17 @@ export function RequestAccess() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error('Failed to submit request');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to submit request');
+      }
 
       setStatus('success');
       setMessage('Your request has been submitted successfully!');
       setFormData({ name: '', email: '', company: '', useCase: '' });
     } catch (error) {
+      console.error('Error:', error);
       setStatus('error');
       setMessage('Failed to submit request. Please try again later.');
     }
