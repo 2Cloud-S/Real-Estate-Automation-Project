@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Navigation } from '../components/Navigation';
 import { Building2, Send, ArrowLeft, User, Mail, Building, MessageSquare, Loader2 } from 'lucide-react';
@@ -14,12 +14,21 @@ export function RequestAccess() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
+  // Add this useEffect for debugging
+  useEffect(() => {
+    console.log('API URL:', import.meta.env.VITE_API_URL);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
+    
+    // Log the full request URL
+    const apiUrl = `${import.meta.env.VITE_API_URL}/api/request-access`;
+    console.log('Making request to:', apiUrl);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/request-access`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
