@@ -9,33 +9,45 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+const corsHeaders = {
+  'Access-Control-Allow-Credentials': 'true',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Accept',
+};
+
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
-  // Add CORS headers
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Content-Type'
-  );
-
   // Handle preflight request
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    res.setHeader('Access-Control-Max-Age', '86400');
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      res.setHeader(key, value);
+    });
+    return res.status(200).end();
   }
 
-  // Only allow POST method
+  // Set CORS headers for all responses
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
   if (req.method !== 'POST') {
-    res.status(405).json({ message: 'Method not allowed' });
-    return;
+    return res.status(405).json({ 
+      message: `Method ${req.method} not allowed` 
+    });
   }
 
   try {
     const { name, email, company, useCase } = req.body;
+
+    if (!name || !email || !company || !useCase) {
+      return res.status(400).json({ 
+        message: 'Missing required fields' 
+      });
+    }
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -52,9 +64,13 @@ export default async function handler(
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: 'Request submitted successfully' });
+    return res.status(200).json({ 
+      message: 'Request submitted successfully' 
+    });
   } catch (error) {
     console.error('Error sending email:', error);
-    res.status(500).json({ message: 'Failed to submit request' });
+    return res.status(500).json({ 
+      message: 'Failed to submit request' 
+    });
   }
 } 
