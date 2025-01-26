@@ -19,7 +19,7 @@ export function RequestAccess() {
     setStatus('loading');
 
     try {
-      const response = await fetch('/api/request-access', {
+      const response = await fetch(import.meta.env.VITE_API_URL + '/api/request-access', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
