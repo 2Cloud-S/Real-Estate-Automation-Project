@@ -23,8 +23,8 @@ export function RequestAccess() {
     e.preventDefault();
     setStatus('loading');
     
-    // Use relative URL - this will automatically use the current domain
-    const apiUrl = '/api/request-access';
+    // Use the current domain for the API URL
+    const apiUrl = `${window.location.origin}/api/request-access`;
     console.log('Making request to:', apiUrl);
 
     try {
@@ -34,6 +34,7 @@ export function RequestAccess() {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        // Remove credentials since we're using same-origin
         body: JSON.stringify(formData),
       });
 
