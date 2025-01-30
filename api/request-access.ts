@@ -1,13 +1,20 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD
-  }
+// Create OAuth2 client
+const oauth2Client = new OAuth2Client({
+  clientId: process.env.GMAIL_CLIENT_ID,
+  clientSecret: process.env.GMAIL_CLIENT_SECRET,
+  redirectUri: 'https://developers.google.com/oauthplayground'
 });
+
+// Set credentials
+oauth2Client.setCredentials({
+  refresh_token: process.env.GMAIL_REFRESH_TOKEN
+});
+
+const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
 const corsHeaders = {
   'Access-Control-Allow-Credentials': 'true',
@@ -49,28 +56,34 @@ export default async function handler(
       });
     }
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      subject: `New Early Access Request from ${name}`,
-      html: `
-        <h2>New Early Access Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Company:</strong> ${company}</p>
-        <h3>Use Case:</h3>
-        <p>${useCase}</p>
-      `
-    };
+    const emailContent = `
+      <h2>New Early Access Request</h2>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Company:</strong> ${company}</p>
+      <h3>Use Case:</h3>
+      <p>${useCase}</p>
+    `;
 
-    await transporter.sendMail(mailOptions);
-    return res.status(200).json({ 
-      message: 'Request submitted successfully' 
+    const encodedEmail = Buffer.from(
+      `From: "OmniRealty AI" <${process.env.GMAIL_EMAIL}>
+To: ${process.env.GMAIL_EMAIL}
+Subject: New Early Access Request from ${name}
+Content-Type: text/html; charset=utf-8
+
+${emailContent}`
+    ).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedEmail
+      }
     });
+
+    return res.status(200).json({ message: 'Request submitted successfully' });
   } catch (error) {
-    console.error('Error sending email:', error);
-    return res.status(500).json({ 
-      message: 'Failed to submit request' 
-    });
+    console.error('Error:', error);
+    return res.status(500).json({ message: 'Failed to submit request' });
   }
 } 
