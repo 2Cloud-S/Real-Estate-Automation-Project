@@ -21,18 +21,25 @@ export default async function handler(
   res: VercelResponse
 ) {
   // Set CORS headers for all responses
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, POST, GET');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
 
   // Handle preflight request
   if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+    res.status(200).end();
+    return;
   }
 
+  // Log the request method and body for debugging
+  console.log('Request method:', req.method);
+  console.log('Request body:', req.body);
+
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: `Method ${req.method} not allowed` });
+    return res.status(405).json({ 
+      message: `Method ${req.method} not allowed`,
+      allowedMethods: ['POST']
+    });
   }
 
   try {

@@ -23,8 +23,8 @@ export function RequestAccess() {
     e.preventDefault();
     setStatus('loading');
     
-    // Use the current domain for the API URL
-    const apiUrl = `${window.location.origin}/api/request-access`;
+    // Use the full URL for the API endpoint
+    const apiUrl = 'https://real-estate-automation-project.vercel.app/api/request-access';
     console.log('Making request to:', apiUrl);
 
     try {
@@ -34,7 +34,6 @@ export function RequestAccess() {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        // Remove credentials since we're using same-origin
         body: JSON.stringify(formData),
       });
 

@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/api/$1",
+      "dest": "api/$1.ts",
       "methods": ["OPTIONS", "POST", "GET"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
