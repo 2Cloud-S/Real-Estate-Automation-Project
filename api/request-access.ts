@@ -16,44 +16,30 @@ oauth2Client.setCredentials({
 
 const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-const corsHeaders = {
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Accept',
-};
-
 export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
+  // Set CORS headers for all responses
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept');
+
   // Handle preflight request
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Max-Age', '86400');
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
     return res.status(200).end();
   }
 
-  // Set CORS headers for all responses
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
-
   if (req.method !== 'POST') {
-    return res.status(405).json({ 
-      message: `Method ${req.method} not allowed` 
-    });
+    return res.status(405).json({ message: `Method ${req.method} not allowed` });
   }
 
   try {
     const { name, email, company, useCase } = req.body;
 
     if (!name || !email || !company || !useCase) {
-      return res.status(400).json({ 
-        message: 'Missing required fields' 
-      });
+      return res.status(400).json({ message: 'Missing required fields' });
     }
 
     const emailContent = `

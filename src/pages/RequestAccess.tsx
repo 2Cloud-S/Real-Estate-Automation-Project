@@ -23,8 +23,12 @@ export function RequestAccess() {
     e.preventDefault();
     setStatus('loading');
     
-    // Log the full request URL
-    const apiUrl = `${import.meta.env.VITE_API_URL}/api/request-access`;
+    // Get the base URL from the current window location in production
+    const baseUrl = import.meta.env.PROD 
+      ? window.location.origin 
+      : import.meta.env.VITE_API_URL;
+      
+    const apiUrl = `${baseUrl}/api/request-access`;
     console.log('Making request to:', apiUrl);
 
     try {
@@ -34,6 +38,7 @@ export function RequestAccess() {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
