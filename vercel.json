@@ -13,12 +13,12 @@
   "routes": [
     {
       "src": "/api/(.*)",
+      "dest": "/api/$1",
       "methods": ["OPTIONS", "POST", "GET"],
       "headers": {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept",
-        "Access-Control-Allow-Credentials": "true"
+        "Access-Control-Allow-Headers": "Content-Type, Authorization, Accept"
       }
     },
     { "handle": "filesystem" },

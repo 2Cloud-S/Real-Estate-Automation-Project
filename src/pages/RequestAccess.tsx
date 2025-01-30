@@ -23,12 +23,8 @@ export function RequestAccess() {
     e.preventDefault();
     setStatus('loading');
     
-    // Get the base URL from the current window location in production
-    const baseUrl = import.meta.env.PROD 
-      ? window.location.origin 
-      : import.meta.env.VITE_API_URL;
-      
-    const apiUrl = `${baseUrl}/api/request-access`;
+    // Use relative URL - this will automatically use the current domain
+    const apiUrl = '/api/request-access';
     console.log('Making request to:', apiUrl);
 
     try {
@@ -38,7 +34,6 @@ export function RequestAccess() {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        credentials: 'include',
         body: JSON.stringify(formData),
       });
 
